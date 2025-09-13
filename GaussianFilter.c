@@ -44,33 +44,42 @@ void free_image(unsigned char **img, int height) {
     free(img);
 }
 
-   // --------- ラプラシアンフィルタ（二次微分） ---------
-void laplacianFilter(unsigned char **img, int width, int height, int threshold) {
-    // 出力用バッファ確保
+// --------- ガウシアンフィルタ（平滑化） ---------
+void GaussianFilter(unsigned char **img, int width, int height, double sigma)
+{
+    int size = (int)(6 * sigma + 1);   // カーネルサイズ（6σをカバー）
+    if (size % 2 == 0) size++;         // 奇数にする
+    int half = size / 2;
+
+    // 出力バッファ
     unsigned char **out = alloc_image(width, height);
 
-    // ラプラシアンカーネル（4近傍）
-    int kernel[3][3] = {
-        { 0,  1,  0},
-        { 1, -4,  1},
-        { 0,  1,  0}
-    };
+    double PI = 3.141592653589793;
+    double gauss_const = 1.0 / (2.0 * PI * sigma * sigma);
 
-    for (int y = 1; y < height - 1; y++) {
-        for (int x = 1; x < width - 1; x++) {
-            int sum = 0;
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            double sum = 0.0;
+            double sum_weight = 0.0;
 
-            // 3x3畳み込み
-            for (int ky = -1; ky <= 1; ky++) {
-                for (int kx = -1; kx <= 1; kx++) {
-                    sum += img[y + ky][x + kx] * kernel[ky + 1][kx + 1];
+            // カーネル適用
+            for (int ky = -half; ky <= half; ky++) {
+                for (int kx = -half; kx <= half; kx++) {
+                    int iy = y + ky;
+                    int ix = x + kx;
+
+                    if (iy >= 0 && iy < height && ix >= 0 && ix < width) {
+                        double weight = gauss_const *
+                            exp(-((kx * kx + ky * ky) / (2 * sigma * sigma)));
+
+                        sum += img[iy][ix] * weight;
+                        sum_weight += weight;
+                    }
                 }
             }
 
-            sum = abs(sum); // 負の値を正に
-
-            if (sum > 255) sum = 255;
-            out[y][x] = (sum >= threshold) ? 255 : 0;
+            // 正規化
+            out[y][x] = (unsigned char)(sum / sum_weight);
         }
     }
 
@@ -175,13 +184,13 @@ void write_bmp(const char *filename, unsigned char **img, int width, int height,
 // --------- メイン関数 ---------
 int main(int argc, char *argv[]) {
     if (argc != 4) {
-        printf("使い方: %s 入力BMP 出力BMP 閾値\n", argv[0]);
+        printf("使い方: %s 入力BMP 出力BMP sigma\n", argv[0]);
         return 1;
     }
 
     char *input_filename = argv[1];
     char *output_filename = argv[2];
-    int threshold = atoi(argv[3]);
+    double sigma = atof(argv[3]);   // ← doubleに変換
 
     int width, height;
     BITMAPFILEHEADER bfh;
@@ -190,8 +199,8 @@ int main(int argc, char *argv[]) {
     unsigned char **image = read_bmp(input_filename, &width, &height, &bfh, &bih);
     if (!image) return 1;
 
-    // エッジ検出処理
-    laplacianFilter(image, width, height, threshold);
+    // ガウシアン平滑化
+    GaussianFilter(image, width, height, sigma);
 
     // BMP形式で保存
     write_bmp(output_filename, image, width, height, bfh, bih);

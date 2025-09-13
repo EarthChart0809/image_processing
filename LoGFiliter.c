@@ -44,42 +44,58 @@ void free_image(unsigned char **img, int height) {
     free(img);
 }
 
-   // --------- ラプラシアンフィルタ（二次微分） ---------
-void laplacianFilter(unsigned char **img, int width, int height, int threshold) {
-    // 出力用バッファ確保
-    unsigned char **out = alloc_image(width, height);
+void LoGFilter(unsigned char **img, int width, int height, double sigma) {
+    int ksize = (int)(6 * sigma + 1); // カーネルサイズ（経験的に6σ程度）
+    if (ksize % 2 == 0) ksize++;      // 奇数にする
+    int half = ksize / 2;
 
-    // ラプラシアンカーネル（4近傍）
-    int kernel[3][3] = {
-        { 0,  1,  0},
-        { 1, -4,  1},
-        { 0,  1,  0}
-    };
+    // カーネル生成
+    double **kernel = (double **)malloc(ksize * sizeof(double *));
+    for (int i = 0; i < ksize; i++) {
+        kernel[i] = (double *)malloc(ksize * sizeof(double));
+    }
 
-    for (int y = 1; y < height - 1; y++) {
-        for (int x = 1; x < width - 1; x++) {
-            int sum = 0;
-
-            // 3x3畳み込み
-            for (int ky = -1; ky <= 1; ky++) {
-                for (int kx = -1; kx <= 1; kx++) {
-                    sum += img[y + ky][x + kx] * kernel[ky + 1][kx + 1];
-                }
-            }
-
-            sum = abs(sum); // 負の値を正に
-
-            if (sum > 255) sum = 255;
-            out[y][x] = (sum >= threshold) ? 255 : 0;
+    double sum = 0.0;
+    double pi = 3.141592653589793;
+    for (int y = -half; y <= half; y++) {
+        for (int x = -half; x <= half; x++) {
+            double r2 = x*x + y*y;
+            double val = ((r2 - 2*sigma*sigma) / (2*pi*pow(sigma,6))) * exp(-r2 / (2*sigma*sigma));
+            kernel[y+half][x+half] = val;
+            sum += val;
         }
     }
 
-    // 結果を元の画像にコピー
+    // 出力バッファ
+    unsigned char **out = alloc_image(width, height);
+
+    // 畳み込み演算
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
+            double acc = 0.0;
+            for (int ky = -half; ky <= half; ky++) {
+                for (int kx = -half; kx <= half; kx++) {
+                    int yy = j + ky;
+                    int xx = i + kx;
+                    if (yy >= 0 && yy < height && xx >= 0 && xx < width) {
+                        acc += img[yy][xx] * kernel[ky+half][kx+half];
+                    }
+                }
+            }
+            int val = (int)fabs(acc); // LoGは負の値も出るので絶対値を取る
+            if (val > 255) val = 255;
+            out[j][i] = (unsigned char)val;
+        }
+    }
+
+    // 結果をimgにコピー
     for (int y = 0; y < height; y++) {
         memcpy(img[y], out[y], width);
     }
 
     free_image(out, height);
+    for (int i = 0; i < ksize; i++) free(kernel[i]);
+    free(kernel);
 }
 
 
@@ -172,16 +188,17 @@ void write_bmp(const char *filename, unsigned char **img, int width, int height,
     fclose(fp);
 }
 
+
 // --------- メイン関数 ---------
 int main(int argc, char *argv[]) {
     if (argc != 4) {
-        printf("使い方: %s 入力BMP 出力BMP 閾値\n", argv[0]);
+        printf("使い方: %s 入力BMP 出力BMP sigma\n", argv[0]);
         return 1;
     }
 
     char *input_filename = argv[1];
     char *output_filename = argv[2];
-    int threshold = atoi(argv[3]);
+    double sigma = atof(argv[3]);   // ← doubleに変換
 
     int width, height;
     BITMAPFILEHEADER bfh;
@@ -190,8 +207,8 @@ int main(int argc, char *argv[]) {
     unsigned char **image = read_bmp(input_filename, &width, &height, &bfh, &bih);
     if (!image) return 1;
 
-    // エッジ検出処理
-    laplacianFilter(image, width, height, threshold);
+    // ガウシアン平滑化
+    LoGFilter(image, width, height, sigma);
 
     // BMP形式で保存
     write_bmp(output_filename, image, width, height, bfh, bih);
@@ -199,3 +216,4 @@ int main(int argc, char *argv[]) {
     free_image(image, height);
     return 0;
 }
+
