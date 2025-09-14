@@ -109,7 +109,6 @@ void averaging(unsigned char **image, int xSize, int ySize, int threshold) {
             }
         }
 
-        //最終行はこの処理は要らないためスキップ
         if (!lastLineTrue)
         {
             for (int x = 0; x < xSize; ++x)

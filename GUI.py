@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 input_path = None  # グローバルで保持
 
 def run_c_program(input_path, output_path, mode, param=None):
-    cmd = ["./All_image_processing.exe", input_path, output_path, str(mode)]
+    cmd = ["./image_processing.exe", input_path, output_path, str(mode)]
     if param is not None:
         cmd.append(str(param))
     subprocess.run(cmd)
