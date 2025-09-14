@@ -44,6 +44,7 @@ void free_image(unsigned char **img, int height) {
     free(img);
 }
 
+// --------- LoGフィルタ（エッジ検出） ---------
 void LoGFilter(unsigned char **img, int width, int height, double sigma) {
     int ksize = (int)(6 * sigma + 1); // カーネルサイズ（経験的に6σ程度）
     if (ksize % 2 == 0) ksize++;      // 奇数にする

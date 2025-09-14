@@ -43,6 +43,7 @@ void free_image(unsigned char **img, int height) {
     free(img);
 }
 
+// --------- 平均化フィルタ（平滑化） ---------
 void averaging(unsigned char **image, int xSize, int ySize, int threshold) {
 /*
     ！画像の画素は，int型2次元配列image[ySize][xSize]で参照できるものとする．
