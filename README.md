@@ -152,3 +152,17 @@ BMP画像の選択、処理モードの選択、パラメータ入力、結果�
 - Python環境にPillow, tkinterがインストールされていること
 
 ---
+
+# 参考資料
+
+- 物理のかぎしっぽ「二値化してみる」https://hooktail.org/computer/index.php?%A3%B2%C3%CD%B2%BD%A4%F2%A4%B7%A4%C6%A4%DF%A4%EB
+
+- Qiita「PGM画像の平滑化」https://qiita.com/Santonn/items/204df5fea5b305939b19
+
+- teratail「C言語　ガウシアンフィルターのソースコードについて」https://teratail.com/questions/255786
+
+- Qiita「画像処理 アルゴリズムから画像処理を知ろう -フィルタ処理編-」https://qiita.com/T_ksy/items/abed6aad3d5d841e0d6d
+
+- 物理のかぎしっぽ「Laplacianフィルタでエッジ抽出する」https://hooktail.org/computer/index.php?Laplacian%A5%D5%A5%A3%A5%EB%A5%BF%A4%C7%A5%A8%A5%C3%A5%B8%C3%EA%BD%D0%A4%B9%A4%EB
+
+- Qiita「LoGフィルタ」https://qiita.com/jajagacchi/items/55c085cb221e822bdb6e
