@@ -45,7 +45,7 @@ image_processing.exe 入力BMPファイル名 出力BMPファイル名 処理番
 
 ### void binarize(unsigned char **img, int width, int height, int threshold)
 - 画像を閾値で二値化
-- **引数**: img（画像データ）, width, height, threshold（しきい値）
+- **引数**: img（画像データ）, width, height, threshold（閾値）
 
 ### void averaging(unsigned char **image, int xSize, int ySize, int threshold)
 - 平均化（平滑化）フィルタ
@@ -53,11 +53,11 @@ image_processing.exe 入力BMPファイル名 出力BMPファイル名 処理番
 
 ### void edgeDetectionFilter(unsigned char **img, int width, int height, int threshold)
 - エッジ検出（横・縦フィルタ）
-- **引数**: img（画像データ）, width, height, threshold（しきい値）
+- **引数**: img（画像データ）, width, height, threshold（閾値）
 
 ### void laplacianFilter(unsigned char **img, int width, int height, int threshold)
 - ラプラシアンフィルタ（二次微分）
-- **引数**: img（画像データ）, width, height, threshold（しきい値）
+- **引数**: img（画像データ）, width, height, threshold（閾値）
 
 ### void GaussianFilter(unsigned char **img, int width, int height, double sigma)
 - ガウシアンフィルタ（平滑化）
@@ -108,14 +108,14 @@ BMP画像の選択、処理モードの選択、パラメータ入力、結果�
 - Python 3.x
 - Pillow（PIL）
 - tkinter
-- All_image_processing.exe（Cコンパイル済み）
+- image_processing.exe（Cコンパイル済み）
 
 ---
 
 ## 主な関数
 
 ### run_c_program(input_path, output_path, mode, param=None)
-- Cプログラム（All_image_processing.exe）をサブプロセスで実行
+- Cプログラム（image_processing.exe）をサブプロセスで実行
 - **引数**:
 	- input_path: 入力画像ファイルパス
 	- output_path: 出力画像ファイルパス
@@ -148,7 +148,7 @@ BMP画像の選択、処理モードの選択、パラメータ入力、結果�
 
 ## 注意事項
 - 入力画像は8bitグレースケールBMPのみ対応
-- All_image_processing.exeが同じフォルダに必要
+- image_processing.exeが同じフォルダに必要
 - Python環境にPillow, tkinterがインストールされていること
 
 ---

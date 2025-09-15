@@ -255,7 +255,7 @@ void GaussianFilter(unsigned char **img, int width, int height, double sigma)
 
 // --------- LoGフィルタ（エッジ検出） ---------
 void LoGFilter(unsigned char **img, int width, int height, double sigma) {
-    int ksize = (int)(6 * sigma + 1); // カーネルサイズ（経験的に6σ程度）
+    int ksize = (int)(6 * sigma + 1); // カーネルサイズ
     if (ksize % 2 == 0) ksize++;      // 奇数にする
     int half = ksize / 2;
 
